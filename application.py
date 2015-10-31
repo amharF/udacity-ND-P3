@@ -312,7 +312,7 @@ def showCategories():
 @app.route('/category/new/', methods=['GET','POST'])
 def newCategory():
   if request.method == 'POST':
-      newCategory = Category(name = request.form['name'])
+      newCategory = Category(name = request.form['name'], user_id = login_session['user_id'])
       session.add(newCategory)
       flash('New Category %s Successfully Created' % newCategory.name)
       session.commit()
