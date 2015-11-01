@@ -20,7 +20,7 @@ session = DBSession()
 
 # Create dummy user
 user1 = User(name="Amhar Ford", email="amhar.ford@gmail.com",
-             picture='http://www.netentstalker.com/wp-content/uploads/2014/02/Wonky-Wabbits-Rabbit.jpg')
+             picture='https://lh5.googleusercontent.com/-fEdEA2m4s20/AAAAAAAAAAI/AAAAAAAAEXY/wJ66AgeAHLQ/photo.jpg')
 session.add(user1)
 session.commit()
 
