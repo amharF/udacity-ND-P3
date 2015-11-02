@@ -312,13 +312,14 @@ def showCategories():
 @app.route('/category/new/', methods=['GET','POST'])
 def newCategory():
   if request.method == 'POST':
-      newCategory = Category(name = request.form['name'], user_id = login_session['user_id'])
+      newCategory = Category(name = request.form['name'], user_id = login_session['user_id']) #add user ID from login_session to Category table   
       session.add(newCategory)
       flash('New Category %s Successfully Created' % newCategory.name)
       session.commit()
       return redirect(url_for('showCategories'))
   else:
       return render_template('newcategory.html')
+
 
 #Edit a category
 @app.route('/category/<int:category_id>/edit/', methods = ['GET', 'POST'])
@@ -334,7 +335,7 @@ def editCategory(category_id):
         if request.form['name']:
             editedCategory.name = request.form['name']
             flash('Category Successfully Edited %s' % editedCategory.name)
-            return redirect(url_for('showCategory'))
+            return redirect(url_for('showCategories'))
     else:
         return render_template('editcategory.html', category = editedCategory)
 
@@ -381,15 +382,15 @@ def newGroceryItem(category_id):
         return "<script>function myFunction() {alert('You are not authorized \
             to add grocery items to this category. Please create your own \
             category in order to add items.');}</script><body onload='myFunction()''>"
-        if request.method == 'POST':
-            newItem = GroceryItem(name=request.form['name'], 
+    if request.method == 'POST':
+        newItem = GroceryItem(name=request.form['name'], 
                 description=request.form['description'], price=request.form['price'], 
                 item_image=request.form['item_image'], category_id=category_id, 
-                user_id=category.user_id)
-            session.add(newItem)
-            session.commit()
-            flash('New Grocery Item %s Successfully Created' % (newItem.name))
-            return redirect(url_for('showGrocery', category_id=category_id))
+                user_id=login_session['user_id'])
+        session.add(newItem)
+        session.commit()
+        flash('New Grocery Item %s Successfully Created' % (newItem.name))
+        return redirect(url_for('showGrocery', category_id=category_id))
     else:
         return render_template('newgroceryitem.html', category_id=category_id)
 

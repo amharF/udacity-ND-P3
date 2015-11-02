@@ -63,8 +63,8 @@
 								<p>{{i.description}}</p>
 								<p>{{i.item_image}}</p>
 								<p class="grocery-price">{{i.price}}</p>
-								<a href='{{url_for('editGroceryItem', category_id = category.id, grocery_id=i.id ) }}'>Edit</a> | 
-								<a href='{{url_for('deleteGroceryItem', category_id = category.id, grocery_id=i.id ) }}'>Delete</a>
+								<a href="{{url_for('editGroceryItem', category_id = category.id, grocery_id=i.id ) }}">Edit</a> | 
+								<a href="{{url_for('deleteGroceryItem', category_id = category.id, grocery_id=i.id ) }}">Delete</a>
 							</div>						
 					{% endfor %}
 			</div>
