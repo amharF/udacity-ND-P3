@@ -5,6 +5,7 @@ from catalog_database_setup import Base, Category, GroceryItem, User
 from flask import session as login_session
 import random
 import string
+from oauth2client import client
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
@@ -158,16 +159,18 @@ def getUserID(email):
 @app.route('/gdisconnect')
 def gdisconnect():
         # Only disconnect a connected user.
-    credentials = login_session.get('credentials')
+    credentials = client.OAuth2Credentials.from_json(login_session.get('credentials'))
     if credentials is None:
         response = make_response(
             json.dumps('Current user not connected.'), 401)
         response.headers['Content-Type'] = 'application/json'
         return response
+    print "this is the credentials object %s" %credentials
     access_token = credentials.access_token
     url = 'https://accounts.google.com/o/oauth2/revoke?token=%s' % access_token
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
+
 
     if result['status'] == '200':
         # Reset the user's sesson.
@@ -180,12 +183,16 @@ def gdisconnect():
         response = make_response(json.dumps('Successfully disconnected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
+            
+
     else:
         # For whatever reason, the given token was invalid.
         response = make_response(
             json.dumps('Failed to revoke token for given user.', 400))
         response.headers['Content-Type'] = 'application/json'
         return response
+
+    
 
 
 
@@ -304,9 +311,9 @@ def groceryItemJSON(category_id, grocery_id):
 def showCategories():
   categories = session.query(Category).order_by(asc(Category.id))
   if 'username' not in login_session:
-    return render_template('publiccategories.html', categories = categories)
+    return render_template('publiccategories.html', categories = categories, login_session = login_session)
   else:
-    return render_template('categories.html', categories = categories)
+    return render_template('categories.html', categories = categories, login_session = login_session)
 
 #Create a new category
 @app.route('/category/new/', methods=['GET','POST'])
@@ -318,7 +325,7 @@ def newCategory():
       session.commit()
       return redirect(url_for('showCategories'))
   else:
-      return render_template('newcategory.html')
+      return render_template('newcategory.html', login_session = login_session)
 
 
 #Edit a category
@@ -337,7 +344,7 @@ def editCategory(category_id):
             flash('Category Successfully Edited %s' % editedCategory.name)
             return redirect(url_for('showCategories'))
     else:
-        return render_template('editcategory.html', category = editedCategory)
+        return render_template('editcategory.html', category = editedCategory, login_session = login_session)
 
 #Delete a category
 @app.route('/category/<int:category_id>/delete/', methods = ['GET', 'POST'])
@@ -356,7 +363,7 @@ def deleteCategory(category_id):
         return redirect(url_for('showCategories', category_id = category_id))
     else:
         return render_template('deletecategory.html', category = 
-            categoryToDelete)
+            categoryToDelete, login_session = login_session)
 
 #Show a category grocery
 @app.route('/category/<int:category_id>/')
@@ -367,10 +374,10 @@ def showGrocery(category_id):
     creator = getUserInfo(category.user_id) #what is happening here? orginally: getUserInfo(category.user_id)
     if 'username' not in login_session or creator.id != login_session['user_id']:
         return render_template('publicgrocery.html', items = items, 
-            category = category, creator = creator)
+            category = category, creator = creator, login_session = login_session)
     else:
         return render_template('grocery.html', items = items, 
-            category = category, creator = creator) 
+            category = category, creator = creator, login_session = login_session) 
 
 #Create a new grocery item
 @app.route('/category/<int:category_id>/grocery/new/', methods=['GET', 'POST'])
@@ -392,7 +399,7 @@ def newGroceryItem(category_id):
         flash('New Grocery Item %s Successfully Created' % (newItem.name))
         return redirect(url_for('showGrocery', category_id=category_id))
     else:
-        return render_template('newgroceryitem.html', category_id=category_id)
+        return render_template('newgroceryitem.html', category_id=category_id, login_session = login_session)
 
 #Edit a grocery item
 @app.route('/category/<int:category_id>/grocery/<int:grocery_id>/edit', 
@@ -422,7 +429,7 @@ def editGroceryItem(category_id, grocery_id):
         return redirect(url_for('showCategories', category_id=category_id))
     else:
         return render_template('editgroceryitem.html', 
-            category_id=category_id, grocery_id=grocery_id, item=editedItem)
+            category_id=category_id, grocery_id=grocery_id, item=editedItem, login_session = login_session)
 
 
 #Delete a menu item
@@ -444,7 +451,7 @@ def deleteGroceryItem(category_id, grocery_id):
         flash('Grocery Item Successfully Deleted')
         return redirect(url_for('showGrocery', category_id=category_id))
     else:
-        return render_template('deletegroceryitem.html', item=itemToDelete)
+        return render_template('deletegroceryitem.html', item=itemToDelete, login_session = login_session)
 
 
 if __name__ == '__main__':
