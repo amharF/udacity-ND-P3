@@ -91,7 +91,7 @@ session.commit()
 groceryItem2 = GroceryItem(name = "carrots", description = "The carrot is a \
 			root vegetable, usually orange in colour, though purple, red, \
 			white, and yellow varieties exist. It has a crisp texture when \
-			fresh.", price = "$1.80", item_image = "/static/carrots.jpg", 
+			fresh.", price = "$1.80", item_image = "/static/carrot.jpg", 
 			category = category2, user = user1)
 
 session.add(groceryItem2)
@@ -146,7 +146,7 @@ groceryItem2 = GroceryItem(name = "bananas", description = "The banana is an \
 			edible fruit, botanically a berry, produced by several kinds of \
 			large herbaceous flowering plants in the genus Musa. In some \
 			countries, bananas used for cooking may be called plantains.",
-			price = "$1.60", item_image = "/static/banaba.jpg", 
+			price = "$1.60", item_image = "/static/banana.jpg", 
 			category = category3, user = user1)
 
 session.add(groceryItem2)
