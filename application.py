@@ -12,6 +12,8 @@ import httplib2
 import json
 from flask import make_response
 import requests
+from xml.etree.ElementTree import Element, SubElement, Comment, tostring
+
 
 app = Flask(__name__)
 
@@ -305,6 +307,90 @@ def groceryItemJSON(category_id, grocery_id):
     return jsonify(grocery_item = grocery_item.serialize)
 
 
+#XML APIs to view Supermarket category information
+
+#return all categories
+@app.route('/category/XML')
+def categoriesXML():
+    categories = session.query(Category).all()
+
+    # Declare root node of XML 
+    top = Element('Categories') 
+    comment = Comment('XML Response with all categories')
+    top.append(comment)
+
+    # Loop through query responses and format as XML
+    for c in categories:
+        category = SubElement(top, 'category')
+        category_id = SubElement(category, 'id')
+        category_id.text = str(c.id)
+        category_name = SubElement(category, 'name')
+        category_name.text = str(c.name)
+
+    return app.response_class(tostring(top), mimetype='application/xml')
+
+
+#return all items in one single category
+@app.route('/category/<int:category_id>/grocery/XML')
+def categoryGroceryXML(category_id):
+    category = session.query(Category).filter_by(id = category_id).all()
+    items = session.query(GroceryItem).filter_by(category_id = 
+        category_id).all()
+
+    # Declare root node of XML 
+    top = Element('Category') 
+    comment = Comment('XML Response with a single category with all items within it')
+    top.append(comment)
+    
+    # Loop through query responses and format as XML
+    for c in category:
+        grocery_category = SubElement(top, 'category')
+        grocery_category_id = SubElement(grocery_category, 'id')
+        grocery_category_id.text = str(c.id)
+        grocery_category_name = SubElement(grocery_category, 'name')
+        grocery_category_name.text = str(c.name)
+        grocery_item = SubElement(grocery_category, 'item')
+        for i in items:
+            grocery_item_id = SubElement(grocery_item, 'id')
+            grocery_item_id.text = str(i.id)
+            grocery_item_name = SubElement(grocery_item, 'name')
+            grocery_item_name.text = str(i.name)
+            grocery_item_des = SubElement(grocery_item, 'description')
+            grocery_item_des.text = str(i.description)
+            grocery_item_price = SubElement(grocery_item, 'price')
+            grocery_item_price.text = str(i.price)
+
+
+    return app.response_class(tostring(top), mimetype='application/xml') 
+
+
+#return one single item
+@app.route('/category/<int:category_id>/grocery/<int:grocery_id>/XML')
+def groceryItemXML(category_id, grocery_id):
+    grocery_item = session.query(GroceryItem).filter_by(id = 
+        grocery_id).all()
+    
+    # Declare root node of XML 
+    top = Element('Item') 
+    comment = Comment('XML Response with a single item with all its attributes')
+    top.append(comment)
+
+    for i in grocery_item:
+        grocery_item_item = SubElement(top, 'item')
+        grocery_item_id = SubElement(grocery_item_item, 'id')
+        grocery_item_id.text = str(i.id)
+        grocery_item_name = SubElement(grocery_item_item, 'name')
+        grocery_item_name.text = str(i.name)
+        grocery_item_des = SubElement(grocery_item_item, 'description')
+        grocery_item_des.text = str(i.description)
+        grocery_item_price = SubElement(grocery_item_item, 'price')
+        grocery_item_price.text = str(i.price)
+        
+    return app.response_class(tostring(top), mimetype='application/xml') 
+
+
+
+
 #Show all categories
 @app.route('/')
 @app.route('/category/')
@@ -452,6 +538,7 @@ def deleteGroceryItem(category_id, grocery_id):
         return redirect(url_for('showGrocery', category_id=category_id))
     else:
         return render_template('deletegroceryitem.html', item=itemToDelete, login_session = login_session)
+
 
 
 if __name__ == '__main__':
