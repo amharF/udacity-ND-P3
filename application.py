@@ -409,7 +409,9 @@ def showCategories():
 @app.route('/category/new/', methods=['GET','POST'])
 def newCategory():
   if request.method == 'POST':
-      newCategory = Category(name = request.form['name'], user_id = login_session['user_id']) #add user ID from login_session to Category table   
+    #add user ID from login_session to Category table   
+      newCategory = Category(name = request.form['name'], 
+        user_id = login_session['user_id']) 
       session.add(newCategory)
       flash('New Category %s Successfully Created' % newCategory.name)
       session.commit()
@@ -434,7 +436,8 @@ def editCategory(category_id):
             flash('Category Successfully Edited %s' % editedCategory.name)
             return redirect(url_for('showCategories'))
     else:
-        return render_template('editcategory.html', category = editedCategory, login_session = login_session)
+        return render_template('editcategory.html', category = editedCategory, 
+            login_session = login_session)
 
 #Delete a category
 @app.route('/category/<int:category_id>/delete/', methods = ['GET', 'POST'])
@@ -461,7 +464,7 @@ def deleteCategory(category_id):
 def showGrocery(category_id):
     category = session.query(Category).filter_by(id = category_id).one()
     items = session.query(GroceryItem).filter_by(category_id = category_id).all()
-    creator = getUserInfo(category.user_id) #what is happening here? orginally: getUserInfo(category.user_id)
+    creator = getUserInfo(category.user_id) 
     if 'username' not in login_session or creator.id != login_session['user_id']:
         return render_template('publicgrocery.html', items = items, 
             category = category, creator = creator, login_session = login_session)
@@ -489,7 +492,8 @@ def newGroceryItem(category_id):
         flash('New Grocery Item %s Successfully Created' % (newItem.name))
         return redirect(url_for('showGrocery', category_id=category_id))
     else:
-        return render_template('newgroceryitem.html', category_id=category_id, login_session = login_session)
+        return render_template('newgroceryitem.html', category_id=category_id, 
+            login_session = login_session)
 
 #Edit a grocery item
 @app.route('/category/<int:category_id>/grocery/<int:grocery_id>/edit', 
@@ -519,7 +523,8 @@ def editGroceryItem(category_id, grocery_id):
         return redirect(url_for('showCategories', category_id=category_id))
     else:
         return render_template('editgroceryitem.html', 
-            category_id=category_id, grocery_id=grocery_id, item=editedItem, login_session = login_session)
+            category_id=category_id, grocery_id=grocery_id, item=editedItem, 
+            login_session = login_session)
 
 
 #Delete a menu item
@@ -541,7 +546,8 @@ def deleteGroceryItem(category_id, grocery_id):
         flash('Grocery Item Successfully Deleted')
         return redirect(url_for('showGrocery', category_id=category_id))
     else:
-        return render_template('deletegroceryitem.html', item=itemToDelete, login_session = login_session)
+        return render_template('deletegroceryitem.html', item=itemToDelete, 
+            login_session = login_session)
 
 
 
