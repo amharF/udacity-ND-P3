@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
-from sqlalchemy import create_engine, asc
+from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 from catalog_database_setup import Base, Category, GroceryItem, User
 from flask import session as login_session
@@ -389,17 +389,19 @@ def groceryItemXML(category_id, grocery_id):
     return app.response_class(tostring(top), mimetype='application/xml') 
 
 
-
-
 #Show all categories
 @app.route('/')
 @app.route('/category/')
 def showCategories():
   categories = session.query(Category).order_by(asc(Category.id))
+  last_added = session.query(GroceryItem).order_by(desc(GroceryItem.id)).limit(5)
+  
   if 'username' not in login_session:
-    return render_template('publiccategories.html', categories = categories, login_session = login_session)
+    return render_template('publiccategories.html', categories = categories, 
+        login_session = login_session, last_added=last_added)
   else:
-    return render_template('categories.html', categories = categories, login_session = login_session)
+    return render_template('categories.html', categories = categories, 
+        login_session = login_session, last_added=last_added)
 
 #Create a new category
 @app.route('/category/new/', methods=['GET','POST'])
