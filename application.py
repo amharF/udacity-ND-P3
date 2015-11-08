@@ -135,7 +135,7 @@ def gconnect():
 
 
 #user helper function
-
+#create a new user in the database User table passing in the data from login_session
 def createUser(login_session):
     newUser = User(name=login_session['username'], email=login_session[
                    'email'], picture=login_session['picture'])
@@ -144,10 +144,12 @@ def createUser(login_session):
     user = session.query(User).filter_by(email=login_session['email']).one()
     return user.id
 
+#retrieve user data from User table
 def getUserInfo(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
+#retrieve user email from User table
 def getUserID(email):
     try:
         user = session.query(User).filter_by(email=email).one()
@@ -395,7 +397,7 @@ def groceryItemXML(category_id, grocery_id):
 def showCategories():
   categories = session.query(Category).order_by(asc(Category.id))
   last_added = session.query(GroceryItem).order_by(desc(GroceryItem.id)).limit(5)
-  
+
   if 'username' not in login_session:
     return render_template('publiccategories.html', categories = categories, 
         login_session = login_session, last_added=last_added)
