@@ -198,7 +198,7 @@ def gdisconnect():
 
     
 
-
+"""
 
 #authenticate to Facebook
 @app.route('/fbconnect', methods=['POST'])
@@ -283,6 +283,7 @@ def fbdisconnect():
     result = h.request(url, 'DELETE')[1]
     return "you have been logged out"
 
+"""
 
 
 #JSON APIs to view Supermarket category information
@@ -395,37 +396,44 @@ def groceryItemXML(category_id, grocery_id):
 @app.route('/')
 @app.route('/category/')
 def showCategories():
-  categories = session.query(Category).order_by(asc(Category.id))
-  last_added = session.query(GroceryItem).order_by(desc(GroceryItem.id)).limit(5)
+    categories = session.query(Category).order_by(asc(Category.id))
+    last_added = session.query(GroceryItem).order_by(desc(GroceryItem.id)).limit(5)
 
-  if 'username' not in login_session:
-    return render_template('publiccategories.html', categories = categories, 
+    if 'username' not in login_session:
+        return render_template('publiccategories.html', categories = categories, 
         login_session = login_session, last_added=last_added)
-  else:
-    return render_template('categories.html', categories = categories, 
+    else:
+        return render_template('categories.html', categories = categories, 
         login_session = login_session, last_added=last_added)
 
 #Create a new category
 @app.route('/category/new/', methods=['GET','POST'])
 def newCategory():
-  if request.method == 'POST':
-    #add user ID from login_session to Category table   
-      newCategory = Category(name = request.form['name'], 
-        user_id = login_session['user_id']) 
-      session.add(newCategory)
-      flash('New Category %s Successfully Created' % newCategory.name)
-      session.commit()
-      return redirect(url_for('showCategories'))
-  else:
-      return render_template('newcategory.html', login_session = login_session)
 
+    if 'username' not in login_session:
+        return redirect('/login')
+
+    if request.method == 'POST':
+        #add user ID from login_session to Category table   
+        newCategory = Category(name = request.form['name'], 
+            user_id = login_session['user_id']) 
+        session.add(newCategory)
+        flash('New Category %s Successfully Created' % newCategory.name)
+        session.commit()
+        return redirect(url_for('showCategories'))
+    else:
+        return render_template('newcategory.html', 
+            login_session = login_session)
 
 #Edit a category
 @app.route('/category/<int:category_id>/edit/', methods = ['GET', 'POST'])
 def editCategory(category_id):
-    editedCategory = session.query(Category).filter_by(id=category_id).one()
+    
     if 'username' not in login_session:
         return redirect('/login')
+
+    editedCategory = session.query(Category).filter_by(id=category_id).one()
+    
     if editedCategory.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('You are not authorized \
             to edit this category. Please create your own category in order \
@@ -442,9 +450,12 @@ def editCategory(category_id):
 #Delete a category
 @app.route('/category/<int:category_id>/delete/', methods = ['GET', 'POST'])
 def deleteCategory(category_id):
-    categoryToDelete = session.query(Category).filter_by(id=category_id).one()
+    
     if 'username' not in login_session:
         return redirect('/login')
+
+    categoryToDelete = session.query(Category).filter_by(id=category_id).one()
+
     if categoryToDelete.user_id != login_session['user_id']:
         return "<script>function myFunction() {alert('You are not authorized \
             to delete this category. Please create your own category in order \
@@ -465,6 +476,7 @@ def showGrocery(category_id):
     category = session.query(Category).filter_by(id = category_id).one()
     items = session.query(GroceryItem).filter_by(category_id = category_id).all()
     creator = getUserInfo(category.user_id) 
+    
     if 'username' not in login_session or creator.id != login_session['user_id']:
         return render_template('publicgrocery.html', items = items, 
             category = category, creator = creator, login_session = login_session)
@@ -477,7 +489,9 @@ def showGrocery(category_id):
 def newGroceryItem(category_id):
     if 'username' not in login_session:
         return redirect('/login')
+    
     category = session.query(Category).filter_by(id=category_id).one()
+    
     if login_session['user_id'] != category.user_id:
         return "<script>function myFunction() {alert('You are not authorized \
             to add grocery items to this category. Please create your own \
@@ -501,8 +515,10 @@ def newGroceryItem(category_id):
 def editGroceryItem(category_id, grocery_id):
     if 'username' not in login_session:
         return redirect('/login')
+    
     category = session.query(Category).filter_by(id=category_id).one()
     editedItem = session.query(GroceryItem).filter_by(id=grocery_id).one()
+    
     if login_session['user_id'] != category.user_id:
         return "<script>function myFunction() {alert('You are not authorized \
             to edit grocery items in this category. Please create your own \
@@ -533,8 +549,10 @@ def editGroceryItem(category_id, grocery_id):
 def deleteGroceryItem(category_id, grocery_id):
     if 'username' not in login_session:
         return redirect('/login')
+    
     category = session.query(Category).filter_by(id=category_id).one()
     itemToDelete = session.query(GroceryItem).filter_by(id=grocery_id).one()
+    
     if login_session['user_id'] != category.user_id:
         return "<script>function myFunction() {alert('You are not authorized \
             to delete grocery items from this category. Please create your \

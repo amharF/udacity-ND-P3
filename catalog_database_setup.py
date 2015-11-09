@@ -24,6 +24,7 @@ class Category(Base):
     name = Column(String(250), nullable=False)
     user_id = Column(Integer,ForeignKey('user.id'))
     user = relationship(User)
+    grocery_item = relationship('GroceryItem', cascade='delete')
 
 
     @property
@@ -33,6 +34,8 @@ class Category(Base):
            'name'         : self.name,
            'id'           : self.id,
        }
+
+#set up the class for the grocey items
  
 class GroceryItem(Base):
     __tablename__ = 'grocery_item'

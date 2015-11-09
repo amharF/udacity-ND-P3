@@ -50,7 +50,7 @@ session.commit()
 groceryItem3 = GroceryItem(name = "yoghurt", description = "Yoghurt is a food\
 			 produced by bacterial fermentation of milk. The bacteria used to\
 			  make yogurt are known as \'yogurt cultures\'.", price = "$1.40",
-			item_image = "/static/yoghurt.jpg", category = category1, user = user1)
+			item_image = "/static/yogurt.jpg", category = category1, user = user1)
 
 session.add(groceryItem3)
 session.commit()
